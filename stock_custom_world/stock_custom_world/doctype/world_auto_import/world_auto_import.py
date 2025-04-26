@@ -83,8 +83,18 @@ class WorldAutoImport(Document):
                 )
 
     def before_submit(self):
-        # inject_sales_invoices(self)
-        pass
+        try:
+            inject_sales_invoice(self)
+            self.status = "SUCCESS"
+        except Exception as e:
+            frappe.throw(
+                f"Error handling attachment: {str(e)}",
+                "Attachment Handling Exception",
+            )
+            frappe.db.rollback()
+            self.status = "PARTIAL_SUCCESS"
+        finally:
+            pass
 
     def start_import(self):
         try:
@@ -123,4 +133,13 @@ def import_from_sale_file(doc):
     except Exception:
         frappe.throw(title="Error", msg="Cannot read excel file.")
     process_sale_data()
+
+    row = frappe.get_doc({"doctype": "World Auto Import Details", "customer": "CUS001", "item": "ITEM001"})
+    doc.append("sales_details", row)
+    pass
+
+
+def inject_sales_invoice(self):
+    for row in self.sales_details:
+        frappe.msgprint(row.name)
     pass

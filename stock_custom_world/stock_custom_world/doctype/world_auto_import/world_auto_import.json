@@ -10,7 +10,8 @@
   "amended_from",
   "naming_series",
   "status",
-  "import_file"
+  "import_file",
+  "sales_details"
  ],
  "fields": [
   {
@@ -47,13 +48,19 @@
    "fieldtype": "Select",
    "label": "Naming Series",
    "options": "WORLD-IMP.-.YY.-.MM.-.DD.-.####"
+  },
+  {
+   "fieldname": "sales_details",
+   "fieldtype": "Table",
+   "label": "Sales Details",
+   "options": "World Auto Import Details"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-26 15:57:24.222990",
+ "modified": "2025-04-26 17:38:39.983103",
  "modified_by": "Administrator",
  "module": "Stock Custom World",
  "name": "World Auto Import",
