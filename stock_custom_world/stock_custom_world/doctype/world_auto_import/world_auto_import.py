@@ -134,7 +134,14 @@ def import_from_sale_file(doc):
         frappe.throw(title="Error", msg="Cannot read excel file.")
     process_sale_data()
 
-    row = frappe.get_doc({"doctype": "World Auto Import Details", "customer": "CUS001", "item": "ITEM001"})
+    row = frappe.get_doc(
+        {
+            "doctype": "World Auto Import Details",
+            "customer": "CUS001",
+            "item": "ITEM001",
+            "warehouse": "Stores - WG",
+        }
+    )
     doc.append("sales_details", row)
     pass
 
@@ -142,4 +149,41 @@ def import_from_sale_file(doc):
 def inject_sales_invoice(self):
     for row in self.sales_details:
         frappe.msgprint(row.name)
+        si = frappe.get_doc({"doctype": "Sales Invoice"})
+        si.customer = "CUS001"
+        si.due_date = getdate("2025-04-26", parse_day_first=False)
+        si.update_stock = 1
+        si.set_warehouse = "Stores - WG"
+        si.is_pos = 1
+        si.pos_profile = "POS_PROFILE_1"
+
+        item = frappe.get_doc({"doctype": "Sales Invoice Item"})
+        item.item_name = "ITEM001"
+        item.item_code = (
+            "ITEM001"  # This is important, if this is wrong, the stock ledger will not be updated.
+        )
+        item.qty = 2
+        item.uom = "Nos"
+        item.rate = 10
+        item.amount = 20
+        item.warehouse = "Stores - WG"
+        item.expense_account = "Cost of Goods Sold - WG"
+        item.price_list_rate = 10
+        item.income_account = "Sales - WG"
+        si.append("items", item)
+
+        si.discount_amount = 5
+
+        payment = frappe.get_doc({"doctype": "Sales Invoice Payment"})
+        payment.mode_of_payment = "Cash"
+        payment.amount = 15
+        payment.account = "Cash - WG"
+        payment.type = "Cash"
+        payment.base_amount = 15
+
+        si.append("payments", payment)
+
+        si.save()
+        si.submit()
+
     pass
