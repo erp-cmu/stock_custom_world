@@ -9,6 +9,8 @@ import pandas as pd
 from frappe.model.document import Document
 from frappe.utils import get_site_path, getdate, now
 
+from stock_custom_world.services.sales_import import process_sale_data
+
 
 def insert_file_suffix_prefix(fname, suffix=None, prefix=None):
     if prefix is None:
@@ -71,7 +73,7 @@ class WorldAutoImport(Document):
                     cur_file_doc.file_url = new_filepath
                     cur_file_doc.file_name = new_filename
                     cur_file_doc.save()
-                    self.checkin_file = cur_file_doc.file_url
+                    self.import_file = cur_file_doc.file_url
                 else:
                     frappe.log_error("File not found.")
             except Exception as e:
@@ -80,10 +82,14 @@ class WorldAutoImport(Document):
                     "Attachment Handling Exception",
                 )
 
+    def before_submit(self):
+        # inject_sales_invoices(self)
+        pass
+
     def start_import(self):
         try:
             progress(0, "Starting Import")
-            # import_from_checkin_file(self)
+            import_from_sale_file(self)
             self.status = "SUCCESS"
             progress(100, "Finish")
         except Exception as e:
@@ -105,3 +111,16 @@ def form_start_import(doc_name: str):
 
 def progress(prog: int, desc: str):
     frappe.publish_realtime("data_import_progress", {"progress": prog, "description": desc})
+
+
+def import_from_sale_file(doc):
+    filepath = frappe.get_site_path() + doc.import_file
+    if not os.path.exists(filepath):
+        frappe.throw(title="Error", msg="This file does not exist")
+
+    try:
+        dfr = pd.read_excel(filepath)
+    except Exception:
+        frappe.throw(title="Error", msg="Cannot read excel file.")
+    process_sale_data()
+    pass
