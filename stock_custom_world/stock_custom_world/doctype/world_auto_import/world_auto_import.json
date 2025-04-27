@@ -11,7 +11,11 @@
   "naming_series",
   "status",
   "source",
+  "default_customer",
+  "column_break_fnxj",
+  "default_warehouse",
   "import_file",
+  "section_break_qzfh",
   "sales_details"
  ],
  "fields": [
@@ -64,14 +68,36 @@
    "label": "Source",
    "options": "\nMyOrder\nLazada\nShopee",
    "reqd": 1
+  },
+  {
+   "fieldname": "default_customer",
+   "fieldtype": "Link",
+   "label": "Default Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fnxj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qzfh",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-27 06:51:01.855923",
- "modified_by": "Administrator",
+ "modified": "2025-04-27 16:25:07.285789",
+ "modified_by": "erp_admin@cmu.com",
  "module": "Stock Custom World",
  "name": "World Auto Import",
  "naming_rule": "By \"Naming Series\" field",

@@ -10,6 +10,7 @@ from frappe.model.document import Document
 from frappe.utils import get_site_path, getdate, now
 
 from stock_custom_world.services.sales_import import process_sale_data
+from stock_custom_world.services.utils import getCustomer, getItem
 
 
 def insert_file_suffix_prefix(fname, suffix=None, prefix=None):
@@ -138,21 +139,35 @@ def import_from_sale_file(doc):
     if not source:
         frappe.throw(title="Error", msg="Cannot find source")
 
-    dfr = process_sale_data(dfr, source)
+    dft = process_sale_data(dfr, source)
 
-    def createSalesDetails(_row):
-        row = frappe.get_doc(
-            {
-                "doctype": "World Auto Import Details",
-                "customer": "CUS001",
-                "item": "ITEM001",
-                "warehouse": "Stores - WG",
-            }
+    def createSalesDetails(r):
+        customer = getCustomer(customer_name=r["customer_ref"]) or doc.default_customer
+        item_code, _ = getItem(item_code=r["item_code_ref"])
+        is_pass = 1 if item_code is not None else 0
+
+        params = dict(
+            doctype="World Auto Import Details",
+            is_pass=is_pass,
+            customer=customer,
+            item_code=item_code,
+            warehouse=doc.default_warehouse,
+            #
+            order_no=r["order_no"],
+            customer_ref=r["customer_ref"],
+            item_ref=r["item_ref"],
+            qty=r["qty"],
+            rate=r["rate"],
+            amount=r["amount"],
+            order_discount=r["order_discount"],
+            order_shipping=r["order_shipping"],
+            order_total=r["order_total"],
+            order_due_date=getdate(r["order_due_date"]),
         )
+        row = frappe.get_doc(params)
         doc.append("sales_details", row)
 
-    dfr.apply(createSalesDetails, axis=1)
-    pass
+    dft.apply(createSalesDetails, axis=1)
 
 
 def inject_sales_invoice(self):
