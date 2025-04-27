@@ -6,21 +6,29 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "is_pass",
-  "order_no",
+  "order_number",
+  "column_break_tsqo",
+  "order_due_date",
+  "section_break_iqmx",
   "customer",
   "customer_ref",
+  "column_break_efug",
   "item_code",
+  "item_name",
   "item_ref",
-  "qty",
-  "rate",
-  "discount",
-  "shipping",
-  "amount",
+  "item_name_ref",
+  "item_code_ref",
+  "is_pass",
+  "section_break_ysvz",
   "warehouse",
-  "order_due_date",
+  "qty",
+  "column_break_roys",
+  "rate",
+  "amount",
+  "section_break_klst",
   "order_discount",
   "order_shipping",
+  "column_break_vaew",
   "order_total"
  ],
  "fields": [
@@ -43,23 +51,10 @@
    "precision": "1"
   },
   {
-   "fieldname": "order_no",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Order No."
-  },
-  {
    "columns": 1,
    "fieldname": "rate",
    "fieldtype": "Currency",
    "label": "Rate"
-  },
-  {
-   "columns": 1,
-   "fieldname": "discount",
-   "fieldtype": "Currency",
-   "label": "Discount"
   },
   {
    "fieldname": "warehouse",
@@ -78,11 +73,6 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Item (Ref)"
-  },
-  {
-   "fieldname": "shipping",
-   "fieldtype": "Currency",
-   "label": "Shipping"
   },
   {
    "fieldname": "amount",
@@ -120,7 +110,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Item",
+   "label": "Item Code",
    "options": "Item"
   },
   {
@@ -130,14 +120,68 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Pass"
+  },
+  {
+   "fieldname": "section_break_ysvz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "item_code_ref",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Item Code (Ref)"
+  },
+  {
+   "fieldname": "item_name_ref",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Item Name (Ref)"
+  },
+  {
+   "fieldname": "column_break_roys",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_klst",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vaew",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_tsqo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_iqmx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_efug",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "order_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Order Number"
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Item Name"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-27 16:30:12.709592",
- "modified_by": "erp_admin@cmu.com",
+ "modified": "2025-04-28 05:22:17.646394",
+ "modified_by": "Administrator",
  "module": "Stock Custom World",
  "name": "World Auto Import Details",
  "owner": "Administrator",

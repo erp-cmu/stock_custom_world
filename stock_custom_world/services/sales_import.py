@@ -64,7 +64,7 @@ def process_sale_data_my_order(dfr):
         item_codes = formatItemStr(_row["รหัสสินค้า (จำนวนชิ้น)"])
         item_names = formatItemStr(_row["สินค้า (จำนวนชิ้น)"])
         #
-        order_no = _row["Order No."]
+        order_number = _row["Order No."]
         customer_ref = _row["ชื่อลูกค้า"]
         order_due_date = _row["วันที่ชำระเงิน"].strftime("%Y-%m-%d")
         order_total = float(_row["ยอดเงิน(บาท)"])
@@ -85,7 +85,7 @@ def process_sale_data_my_order(dfr):
             qty = dCode["qty"]
             # Fill in info
             data = dict(
-                order_no=order_no,
+                order_number=order_number,
                 customer_ref=customer_ref,
                 item_code_ref=item_code_ref,
                 item_name_ref=item_name_ref,

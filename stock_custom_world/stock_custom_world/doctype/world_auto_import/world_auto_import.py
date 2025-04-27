@@ -153,9 +153,11 @@ def import_from_sale_file(doc):
             item_code=item_code,
             warehouse=doc.default_warehouse,
             #
-            order_no=r["order_no"],
+            order_number=r["order_number"],
             customer_ref=r["customer_ref"],
             item_ref=r["item_ref"],
+            item_ref_code=r["item_code_ref"],
+            item_ref_name=r["item_name_ref"],
             qty=r["qty"],
             rate=r["rate"],
             amount=r["amount"],
@@ -170,44 +172,66 @@ def import_from_sale_file(doc):
     dft.apply(createSalesDetails, axis=1)
 
 
+from collections import defaultdict
+
+
 def inject_sales_invoice(self):
-    for row in self.sales_details:
-        frappe.msgprint(row.name)
-        si = frappe.get_doc({"doctype": "Sales Invoice"})
-        si.customer = "CUS001"
-        si.due_date = getdate("2025-04-26", parse_day_first=False)
-        si.update_stock = 1
-        si.set_warehouse = "Stores - WG"
-        si.is_pos = 1
-        si.pos_profile = "POS_PROFILE_1"
+    sdGroupDict = defaultdict(list)
+    for sd in self.sales_details:
+        sdGroupDict[sd.order_number].append(dict(order_number=sd.order_number, data=sd))
+    sdGroupDict = dict(sdGroupDict)
 
-        item = frappe.get_doc({"doctype": "Sales Invoice Item"})
-        item.item_name = "ITEM001"
-        item.item_code = (
-            "ITEM001"  # This is important, if this is wrong, the stock ledger will not be updated.
+    for _, sdArr in sdGroupDict.items():
+        sd0 = sdArr[0]["data"]  # First sales details to give the sales-invoice info
+        paramsSalesInvoice = dict(
+            doctype="Sales Invoice",
+            customer=sd0.customer,
+            due_date=getdate(sd0, parse_day_first=False),
+            update_stock=1,
+            set_wareouse=self.default_warehouse,
+            is_pos=1,
+            pos_profile="",
+            discount_amount=sd0.order_discount,
+            customer_order_number=sd0.order_number,
+            customer_external_source=self.source,
         )
-        item.qty = 2
-        item.uom = "Nos"
-        item.rate = 10
-        item.amount = 20
-        item.warehouse = "Stores - WG"
-        item.expense_account = "Cost of Goods Sold - WG"
-        item.price_list_rate = 10
-        item.income_account = "Sales - WG"
-        si.append("items", item)
+        salesInv = frappe.get_doc(paramsSalesInvoice)
 
-        si.discount_amount = 5
+        # Add items
+        for _sd in sdArr:
+            sd = _sd["data"]
 
-        payment = frappe.get_doc({"doctype": "Sales Invoice Payment"})
-        payment.mode_of_payment = "Cash"
-        payment.amount = 15
-        payment.account = "Cash - WG"
-        payment.type = "Cash"
-        payment.base_amount = 15
+            _, uom = getItem(sd.item_code)
+            if uom is None:
+                uom = "Nos"
 
-        si.append("payments", payment)
+            paramsItem = dict(
+                doctype="Sales Invoice Item",
+                item_name=sd.item_name,
+                item_code=sd.item_code,  # If this is wrong, the stock ledger will not be updated.
+                uom=uom,
+                qty=sd.qty,
+                rate=sd.rate,
+                amount=sd.amount,
+                warehouse=sd.warehouse,
+                expense_account="Cost of Goods Sold - WG",
+                income_account="Sales - WG",
+                # price_list_rate = sd.rate
+            )
+            salesInvItem = frappe.get_doc(paramsItem)
+            salesInv.append("items", salesInvItem)
 
-        si.save()
-        si.submit()
-
-    pass
+        # Add payment
+        paramsPayment = dict(
+            doctype="Sales Invoice Payment",
+            mode_of_payment="Cash",
+            type="Cash",
+            account="Cash - WG",
+            base_amount=sd.order_total,
+            amount=sd.order_total,
+        )
+        payment = frappe.get_doc(paramsPayment)
+        salesInv.append("payments", payment)
+        #
+        salesInv.save()
+        salesInv.submit()
