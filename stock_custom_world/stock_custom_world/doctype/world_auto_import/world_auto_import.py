@@ -132,17 +132,26 @@ def import_from_sale_file(doc):
         dfr = pd.read_excel(filepath)
     except Exception:
         frappe.throw(title="Error", msg="Cannot read excel file.")
-    process_sale_data()
 
-    row = frappe.get_doc(
-        {
-            "doctype": "World Auto Import Details",
-            "customer": "CUS001",
-            "item": "ITEM001",
-            "warehouse": "Stores - WG",
-        }
-    )
-    doc.append("sales_details", row)
+    # Process raw data
+    source = doc.source
+    if not source:
+        frappe.throw(title="Error", msg="Cannot find source")
+
+    dfr = process_sale_data(dfr, source)
+
+    def createSalesDetails(_row):
+        row = frappe.get_doc(
+            {
+                "doctype": "World Auto Import Details",
+                "customer": "CUS001",
+                "item": "ITEM001",
+                "warehouse": "Stores - WG",
+            }
+        )
+        doc.append("sales_details", row)
+
+    dfr.apply(createSalesDetails, axis=1)
     pass
 
 

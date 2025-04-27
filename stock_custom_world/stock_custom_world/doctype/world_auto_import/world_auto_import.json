@@ -10,6 +10,7 @@
   "amended_from",
   "naming_series",
   "status",
+  "source",
   "import_file",
   "sales_details"
  ],
@@ -31,7 +32,8 @@
   {
    "fieldname": "import_file",
    "fieldtype": "Attach",
-   "label": "Import File"
+   "label": "Import File",
+   "reqd": 1
   },
   {
    "default": "PENDING",
@@ -54,13 +56,21 @@
    "fieldtype": "Table",
    "label": "Sales Details",
    "options": "World Auto Import Details"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Source",
+   "options": "\nMyOrder\nLazada\nShopee",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-26 17:38:39.983103",
+ "modified": "2025-04-27 06:51:01.855923",
  "modified_by": "Administrator",
  "module": "Stock Custom World",
  "name": "World Auto Import",
