@@ -7,7 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "source",
-  "external_item_code"
+  "external_item_code",
+  "external_item_name"
  ],
  "fields": [
   {
@@ -26,13 +27,20 @@
    "in_standard_filter": 1,
    "label": "External Item Code",
    "reqd": 1
+  },
+  {
+   "fieldname": "external_item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "External Item Name"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-26 22:47:37.742877",
+ "modified": "2025-04-28 15:18:12.192246",
  "modified_by": "Administrator",
  "module": "Stock Custom World",
  "name": "External Item Codes",
