@@ -181,6 +181,7 @@ def inject_sales_invoice(self):
         sdGroupDict[sd.order_number].append(dict(order_number=sd.order_number, data=sd))
     sdGroupDict = dict(sdGroupDict)
 
+    source = self.source
     for _, sdArr in sdGroupDict.items():
         sd0 = sdArr[0]["data"]  # First sales details to give the sales-invoice info
         paramsSalesInvoice = dict(
@@ -193,7 +194,7 @@ def inject_sales_invoice(self):
             pos_profile="",
             discount_amount=sd0.order_discount,
             customer_order_number=sd0.order_number,
-            customer_external_source=self.source,
+            customer_external_source=source,
         )
         salesInv = frappe.get_doc(paramsSalesInvoice)
 
@@ -201,7 +202,7 @@ def inject_sales_invoice(self):
         for _sd in sdArr:
             sd = _sd["data"]
 
-            _, uom = getItem(sd.item_code)
+            _, uom = getItem(sd.item_code, sd.item_code_ref, sd.item_name_ref, source)
             if uom is None:
                 uom = "Nos"
 

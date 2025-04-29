@@ -8,12 +8,16 @@ def getUOM(item_name):
 
 def getItem(
     item_code,
+    item_code_ref="",
+    item_name_ref="",
+    source="",
     item_name="",
     also_search_item_name=False,
 ):
     item_name_pk = frappe.db.exists("Item", {"item_code": item_code})
 
     if item_name_pk:
+        updateOrCreateExternalItemCode(item_code, item_code_ref, item_name_ref, source)
         return item_name_pk, getUOM(item_name_pk)
 
     # NOTE: Since item name is not guarantee unique, I might ended getting the wrong or duplicated items which
@@ -24,6 +28,36 @@ def getItem(
             return item_name_pk, getUOM(item_name_pk)
 
     return None, None
+
+
+def updateOrCreateExternalItemCode(item_name, item_code_ref, item_name_ref, source):
+    # See if the external item code already exists
+    filters = dict(external_item_code=item_code_ref, parenttype="Item", parent=item_name, source=source)
+    extItemCodeName = frappe.db.exists("External Item Codes", filters)
+
+    # If external item code already exists, only update the item name
+    if extItemCodeName and item_name_ref != "":
+        frappe.db.set_value("External Item Codes", extItemCodeName, "external_item_name", item_name_ref)
+        return
+
+    # External item code does not exist
+    # First, check for duplication
+    filters = dict(
+        external_item_code=item_code_ref,
+        parenttype="Item",
+        parent=["!=", item_name],
+        source=source,
+    )
+    itemName = frappe.db.exists("External Item Codes", filters)
+    if itemName:
+        frappe.throw(f"Found item {itemName} with similar external item code {source} : {item_code_ref}")
+
+    # No duplication, create new external item code
+    doc = frappe.get_doc("Item", item_name)
+    doc.append(
+        "External Item Codes",
+        dict(external_item_code=item_code_ref, external_item_name=item_name_ref, source=source),
+    )
 
 
 def getCustomer(customer_name):
