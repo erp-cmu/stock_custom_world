@@ -33,7 +33,7 @@
  ],
  "fields": [
   {
-   "columns": 2,
+   "columns": 1,
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -117,8 +117,6 @@
    "default": "1",
    "fieldname": "is_pass",
    "fieldtype": "Check",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Pass"
   },
   {
@@ -162,6 +160,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "columns": 2,
    "fieldname": "order_number",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -180,8 +179,8 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-28 05:22:17.646394",
- "modified_by": "Administrator",
+ "modified": "2025-04-30 20:16:13.877657",
+ "modified_by": "erp_admin@cmu.com",
  "module": "Stock Custom World",
  "name": "World Auto Import Details",
  "owner": "Administrator",
