@@ -85,6 +85,7 @@ class WorldAutoImport(Document):
 
     def before_submit(self):
         try:
+            check_user_input(self)
             inject_sales_invoice(self)
             self.status = "SUCCESS"
         except Exception as e:
@@ -113,6 +114,32 @@ class WorldAutoImport(Document):
         finally:
             pass
         return self
+
+
+def check_user_input(doc):
+    dataArr = []
+    for row in doc.sales_details:
+        dataArr.append(dict(item_code=row.item_code, item_code_ref=row.item_code_ref))
+    check_unique_item_code_ref(dataArr)
+
+
+def check_unique_item_code_ref(items):
+    """
+    Ensures each item_code maps to only one item_code_ref.
+    Raises ValueError if a duplicate item_code has a different item_code_ref.
+    """
+    mapping = {}
+    for item in items:
+        code = item["item_code"]
+        ref = item["item_code_ref"]
+        if code in mapping:
+            if mapping[code] != ref:
+                raise ValueError(
+                    f"item_code '{code}' has multiple item_code_ref values: '{mapping[code]}' and '{ref}'"
+                )
+        else:
+            mapping[code] = ref
+    return True  # All item_codes have unique item_code_ref
 
 
 @frappe.whitelist()
@@ -202,7 +229,7 @@ def inject_sales_invoice(self):
         for _sd in sdArr:
             sd = _sd["data"]
 
-            itemName, uom = getItem(item_code=sd.item_code, item_code_ref=sd.item_code_ref, source=source)
+            itemName, uom = getItem(item_code=sd.item_code, source=source)
             if itemName is None:
                 frappe.throw(f"Cannot find item {sd.item_code}")
             if uom is None:

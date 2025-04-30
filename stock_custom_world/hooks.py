@@ -129,9 +129,7 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {"Item": "stock_custom_world.overrides.custom_item.CustomItem"}
 
 # Document Events
 # ---------------
