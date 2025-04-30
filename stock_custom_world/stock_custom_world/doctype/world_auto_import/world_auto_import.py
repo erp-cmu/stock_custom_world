@@ -202,7 +202,9 @@ def inject_sales_invoice(self):
         for _sd in sdArr:
             sd = _sd["data"]
 
-            _, uom = getItem(sd.item_code, sd.item_code_ref, sd.item_name_ref, source)
+            itemName, uom = getItem(item_code=sd.item_code, item_code_ref=sd.item_code_ref, source=source)
+            if itemName is None:
+                frappe.throw(f"Cannot find item {sd.item_code}")
             if uom is None:
                 uom = "Nos"
 

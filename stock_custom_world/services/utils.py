@@ -6,18 +6,14 @@ def getUOM(item_name):
     return stock_uom
 
 
-def getItem(
+def getItemInternal(
     item_code,
-    item_code_ref="",
-    item_name_ref="",
-    source="",
     item_name="",
     also_search_item_name=False,
 ):
     item_name_pk = frappe.db.exists("Item", {"item_code": item_code})
 
     if item_name_pk:
-        updateOrCreateExternalItemCode(item_code, item_code_ref, item_name_ref, source)
         return item_name_pk, getUOM(item_name_pk)
 
     # NOTE: Since item name is not guarantee unique, I might ended getting the wrong or duplicated items which
@@ -27,6 +23,36 @@ def getItem(
         if item_name_pk:
             return item_name_pk, getUOM(item_name_pk)
 
+    return None, None
+
+
+def getItemExternal(item_code_ref, source):
+    # See if the external item code already exists
+    filters = dict(external_item_code=item_code_ref, source=source)
+    items = frappe.db.get_all("External Item Codes", filters=filters)
+    if len(items) == 0:
+        return None
+
+    if len(items) > 1:
+        parents = [it.parent for it in items]
+        parents_str = ", ".join(parents)
+        frappe.msg(f"Found duplicated external item code for {item_code_ref} in {parents_str}.")
+
+    return getItemInternal(items[0].parent)
+
+
+def getItem(
+    item_code,
+    item_code_ref="",
+    source="",
+):
+    item_name_pk, uom = getItemInternal(item_code=item_code)
+
+    if item_name_pk:
+        return item_name_pk, uom
+
+    # Search for external item name
+    getItemExternal(item_code_ref=item_code_ref, source=source)
     return None, None
 
 
