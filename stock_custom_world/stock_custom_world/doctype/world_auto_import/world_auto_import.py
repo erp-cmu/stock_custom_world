@@ -3,6 +3,7 @@
 import os
 import re
 import shutil
+from collections import defaultdict
 
 import frappe
 import pandas as pd
@@ -117,6 +118,12 @@ class WorldAutoImport(Document):
 
 
 def check_user_input(doc):
+    # Check if item_code is not blank
+    for row in doc.sales_details:
+        if not row.item_code:
+            frappe.throw(f"No item found for {row.item_code_ref}")
+
+    # Check unique item code
     dataArr = []
     for row in doc.sales_details:
         dataArr.append(dict(item_code=row.item_code, item_code_ref=row.item_code_ref))
@@ -199,9 +206,6 @@ def import_from_sale_file(doc):
     dft.apply(createSalesDetails, axis=1)
 
 
-from collections import defaultdict
-
-
 def inject_sales_invoice(self):
     sdGroupDict = defaultdict(list)
     for sd in self.sales_details:
@@ -209,7 +213,26 @@ def inject_sales_invoice(self):
     sdGroupDict = dict(sdGroupDict)
 
     source = self.source
-    for _, sdArr in sdGroupDict.items():
+
+    # Filter order with existing sale order
+    sdFilterArr = []
+    for order_number, sdArr in sdGroupDict.items():
+        siName = frappe.db.get_all(
+            "Sales Invoice", filters=dict(custom_order_number=order_number, docstatus=1)
+        )
+        if not siName:
+            sdFilterArr.append(sdArr)
+        else:
+            frappe.msgprint(f"Skip importing order: {order_number}. Order already exists")
+
+    # Skip filtering
+    # sdFilterArr = [el for _, el in sdGroupDict.items()]
+
+    if len(sdFilterArr) == 0:
+        frappe.throw("No new order imported")
+
+    # Create sale invoice
+    for sdArr in sdFilterArr:
         sd0 = sdArr[0]["data"]  # First sales details to give the sales-invoice info
         paramsSalesInvoice = dict(
             doctype="Sales Invoice",
@@ -220,8 +243,9 @@ def inject_sales_invoice(self):
             is_pos=1,
             pos_profile="",
             discount_amount=sd0.order_discount,
-            customer_order_number=sd0.order_number,
-            customer_external_source=source,
+            custom_order_number=sd0.order_number,
+            custom_external_source=source,
+            custom_import_reference=self.name,
         )
         salesInv = frappe.get_doc(paramsSalesInvoice)
 

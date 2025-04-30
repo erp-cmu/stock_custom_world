@@ -95,9 +95,14 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2025-04-27 16:25:07.285789",
- "modified_by": "erp_admin@cmu.com",
+ "links": [
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "custom_import_reference"
+  }
+ ],
+ "modified": "2025-04-30 19:34:40.420527",
+ "modified_by": "Administrator",
  "module": "Stock Custom World",
  "name": "World Auto Import",
  "naming_rule": "By \"Naming Series\" field",
