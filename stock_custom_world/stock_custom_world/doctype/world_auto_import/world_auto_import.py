@@ -10,7 +10,7 @@ from frappe.model.document import Document
 from frappe.utils import get_site_path, getdate, now
 
 from stock_custom_world.services.sales_import import process_sale_data
-from stock_custom_world.services.utils import getCustomer, getItem
+from stock_custom_world.services.utils import getCustomer, getItem, updateOrCreateExternalItemCode
 
 
 def insert_file_suffix_prefix(fname, suffix=None, prefix=None):
@@ -143,7 +143,7 @@ def import_from_sale_file(doc):
 
     def createSalesDetails(r):
         customer = getCustomer(customer_name=r["customer_ref"]) or doc.default_customer
-        item_code, _ = getItem(item_code=r["item_code_ref"])
+        item_code, _ = getItem(item_code=r["item_code_ref"], source=source)
         is_pass = 1 if item_code is not None else 0
 
         params = dict(
@@ -207,6 +207,14 @@ def inject_sales_invoice(self):
                 frappe.throw(f"Cannot find item {sd.item_code}")
             if uom is None:
                 uom = "Nos"
+
+            updateOrCreateExternalItemCode(
+                item_code=sd.item_code,
+                item_code_ref=sd.item_code_ref,
+                item_name_ref=sd.item_name_ref,
+                source=source,
+                remove_duplication=True,
+            )
 
             paramsItem = dict(
                 doctype="Sales Invoice Item",
